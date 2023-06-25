@@ -109,6 +109,46 @@ async function registerCustomer() {
 const SignupButton_cust = document.getElementById("SignupButton-cust");
 SignupButton_cust.onclick = registerCustomer;
 
+async function customerlogin() {
+  try {
+    // const insaccounts = await web3.eth.insgetaccounts();
+    await window.ethereum.enable();
+    const accounts = await web3.eth.getAccounts(); 
+    const passwordlogin = document.getElementById(
+      "passwordlogin-cust"
+    ).value;
+
+    const result = await contract.methods
+      .CustomerLogin(accounts[0], passwordlogin)
+      .call();
+
+    console.log("Login result:", result);
+
+    if (result === "0") {
+      console.log("Customer  is not registered.");
+      alert("Customer is not registered.");
+    } else if (result === "1") {
+      console.log("Login successful.");
+      alert("Login successful.");
+      window.location.href = "/customer";
+    } else if (result === "2") {
+      console.log("Incorrect password.");
+      alert("Incorrect password.");
+    } else {
+      console.log("Unknown result:", result);
+    }
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+
+
+
+const LoginButton = document.getElementById("LoginButton-cust");
+ LoginButton.onclick = customerlogin;
+
+
 // const LoginButton = document.getElementById("LoginButton-cust");
 // LoginButton.onclick = CustomerLogin;
 
@@ -139,5 +179,38 @@ async function registerHospital() {
 
 const SignupButton_hop = document.getElementById("SignupButton-hop");
 SignupButton_hop.onclick = registerHospital;
+async function hospitallogin() {
+  try {
+    // const insaccounts = await web3.eth.insgetaccounts();
+    const passwordlogin = document.getElementById(
+      "passwordlogin-hop"
+    ).value;
+
+    const result = await contract.methods
+      .HospitalLogin(hopaccount, passwordlogin)
+      .call();
+
+    console.log("Login result:", result);
+
+    if (result === "0") {
+      console.log("Hospital is not registered.");
+      alert("Hospital is not registered.");
+    } else if (result === "1") {
+      console.log("Login successful.");
+      alert("Login successful.");
+      window.location.href = "/hospital";
+    } else if (result === "2") {
+      console.log("Incorrect password.");
+      alert("Incorrect password.");
+    } else {
+      console.log("Unknown result:", result);
+    }
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+ const LoginButton_hop = document.getElementById("LoginButton-hop");
+ LoginButton_hop.onclick = hospitallogin;
 // const LoginButton_hop = document.getElementById("LoginButton-hop");
 // LoginButton_hop.onclick = HospitalLogin;
