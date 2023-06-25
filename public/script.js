@@ -1,6 +1,3 @@
-// const { default: Web3 } = require("web3");
-
-// sessionStorage.setItem("abi", JSON.stringify(abi));
 const contractAddress = sessionStorage.getItem("contractAddress") || "";
 sessionStorage.setItem(
   "contractAddress",
@@ -8,8 +5,6 @@ sessionStorage.setItem(
 );
 /////////////////////////////////////////////////
 const web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
-// const web3 = new Web3(window.ethereum);
-
 const contract = new web3.eth.Contract(abi, contractAddress);
 
 //insaccount////////////////////////////////////
@@ -24,7 +19,12 @@ sessionStorage.setItem(
   "hopaccount",
   "0xFEe9b306a7b97570E9E96B4991B2df245b85e241"
 );
-/////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
+//Company
+//////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
+//Company registration
+//////////////////////////////////////////////////////
 async function registerCompany() {
   console.log("Connected to MetaMask!");
   console.log("User Address:", insaccount);
@@ -47,20 +47,19 @@ async function registerCompany() {
     console.error(error);
   }
 }
+//////////////////////////////////////////////////////
+//Company login
+//////////////////////////////////////////////////////
 
 async function insuranceCompanyLogin() {
   try {
-    // const insaccounts = await web3.eth.insgetaccounts();
     const passwordlogin = document.getElementById(
       "passwordlogin-company"
     ).value;
-
     const result = await contract.methods
       .InsuranceCompanyLogin(insaccount, passwordlogin)
       .call();
-
     console.log("Login result:", result);
-
     if (result === "0") {
       console.log("Insurance company is not registered.");
       alert("Insurance company is not registered.");
@@ -85,7 +84,12 @@ SignupButton_comp.onclick = registerCompany;
 const LoginButton_comp = document.getElementById("LoginButton-company");
 LoginButton_comp.onclick = insuranceCompanyLogin;
 
+//////////////////////////////////////////////////////
 //Customer
+//////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
+//Customer registration
+//////////////////////////////////////////////////////
 async function registerCustomer() {
   const Customername = document.getElementById("name-cust").value;
   const Customerpassword = document.getElementById("password-cust").value;
@@ -108,6 +112,10 @@ async function registerCustomer() {
 
 const SignupButton_cust = document.getElementById("SignupButton-cust");
 SignupButton_cust.onclick = registerCustomer;
+
+//////////////////////////////////////////////////////
+//Customer registration
+//////////////////////////////////////////////////////
 
 async function customerlogin() {
   try {
@@ -142,20 +150,15 @@ async function customerlogin() {
   }
 }
 
-
-
-
 const LoginButton = document.getElementById("LoginButton-cust");
  LoginButton.onclick = customerlogin;
 
-
-// const LoginButton = document.getElementById("LoginButton-cust");
-// LoginButton.onclick = CustomerLogin;
-
-//hospital
-
-// const account = document.getElementById("walletaddress-hop").value.toLowerCase();
-// const account = "0x7675f941545C475DEFc916dC1aF5A3Bb8EB75a64";
+//////////////////////////////////////////////////////
+//Hospital
+//////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
+//Hospital registration
+//////////////////////////////////////////////////////
 async function registerHospital() {
   const Hospitalname = document.getElementById("name-hop").value;
   const Hospitalpassword = document.getElementById("password-hop").value;
@@ -179,6 +182,9 @@ async function registerHospital() {
 
 const SignupButton_hop = document.getElementById("SignupButton-hop");
 SignupButton_hop.onclick = registerHospital;
+//////////////////////////////////////////////////////
+//Hospital Login
+//////////////////////////////////////////////////////
 async function hospitallogin() {
   try {
     // const insaccounts = await web3.eth.insgetaccounts();
@@ -212,5 +218,3 @@ async function hospitallogin() {
 
  const LoginButton_hop = document.getElementById("LoginButton-hop");
  LoginButton_hop.onclick = hospitallogin;
-// const LoginButton_hop = document.getElementById("LoginButton-hop");
-// LoginButton_hop.onclick = HospitalLogin;
