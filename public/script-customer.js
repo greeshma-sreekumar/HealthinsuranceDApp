@@ -8,9 +8,9 @@ const contract = new web3.eth.Contract(abi, contractAddress);
 const insaccounts = [sessionStorage.getItem("insaccount")];
 const hopaccounts = [sessionStorage.getItem("hopaccount")];
 const custPrivateKey =
-  "0xedf4c20672581574f0e5be9455992931093b4e5cd09bce19f2b8f2071c7160d0";
+  "0x150edb5eb870dfbfdd78c2b18b5a9b0f3f9f1d8cc620ed4e1916ece2c6bc4e0b";
 const insPrivateKey =
-  "0x381af7078d460909e62d44677cf0f905b438d65a4450fd21b6efb477fe58a3d1";
+  "0xb99033d87547645e97a921faabd953bd70356df600ad6249a09781d46339a3ee";
 
 /////////////////////////////////////////////////////////////////////////////////
 //Adding the policy created by the company to the customer Apply for insurance page
@@ -145,20 +145,9 @@ async function getPolicyDetails(policyId) {
 document
   .getElementById("submit-premiumpay")
   .addEventListener("click", async function () {
-    // const policyIdInput = document.getElementById("policyIdInput");
-    // const policyId = parseInt(policyIdInput.value);
-    // const result = await contract.methods.policiesAvailable(policyId).call();
-    // const companyName = result.insuranceCompanyName;
-    // const policyName = result.policyName;
-    // const premiumtobepaid = result.premiumtobepaid;
-    // const suminsuredbypolicy = result.suminsuredbypolicy;
-    // const premiumcount = JSON.parse(sessionStorage.getItem("premiumcount"));
-    // const premiumcount_policyindex = JSON.parse(
-    //   sessionStorage.getItem("premiumcount_policyindex")
-    // );
-    // const indexs = premiumcount_policyindex.indexOf(policyId);
-    // const totalpremiumpaid = premiumtobepaid * premiumcount[indexs];
-    // const premiumpaydetails = document.getElementById("premiumpay-details");
+    const policyIdInput = document.getElementById("policyIdInput");
+    const policyId = parseInt(policyIdInput.value);
+    const premiumpaydetails = document.getElementById("premiumpay-details");
     const result = await contract.methods.policiesAvailable(policyId).call();
     const companyName = result.insuranceCompanyName;
     const policyName = result.policyName;
@@ -395,6 +384,7 @@ async function applyForClaim(policyId, billId) {
     const recerBalance = document.getElementById("recerBalance");
     recerBalance.textContent = `Receiver Balance: ${recAddressBalanceBefore} ETH (Before) -> ${recAddressBalanceAfter} ETH (After)`;
   } catch (error) {
+    alert("Error applying for claim")
     console.error("Error applying for claim:", error);
   }
 }
