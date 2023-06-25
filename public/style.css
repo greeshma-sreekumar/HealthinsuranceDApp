@@ -1,0 +1,198 @@
+body {
+  background-color: #5cdb95;
+}
+
+/* Style the header with a grey background and some padding */
+/* .header {
+    overflow: hidden;
+    background-color: #05386b;
+    padding: 20px 10px;
+    border-radius: 10px;
+  } */
+
+.header {
+  position: fixed;
+  align-self: start;
+  top: 0;
+  z-index: 1;
+  width: 99%;
+  overflow: hidden;
+  margin-top: 10px;
+  margin-left: 5px;
+  margin-right: 5px;
+  background-color: #05386b;
+  padding: 15px 10px;
+  border-radius: 10px;
+  animation: 500ms ease-in-out 0s normal none 1 running fadeInDown;
+}
+
+/* Style the header links */
+.header a {
+  float: left;
+  color: #edf5d1;
+  text-align: center;
+  padding: 12px;
+  text-decoration: none;
+  font-size: 20px;
+  line-height: 25px;
+  border-radius: 4px;
+  font-family: "Medium 500", "Poppins", sans-serif;
+}
+
+/* Style the logo link (notice that we set the same value of line-height and font-size to prevent the header to increase when the font gets bigger */
+.header a.logo {
+  font-size: 30px;
+  font-weight: bold;
+  color: #edf5d1;
+}
+
+/* Change the background color on mouse-over */
+.header a:hover {
+  /* background-color: #ddd; */
+  color: #5cdb95;
+}
+
+/* Style the active/current link*/
+.header a.active {
+  background-color: #edf5d1;
+  color: #05386b;
+}
+
+/* Float the link section to the right */
+.header-right {
+  float: right;
+}
+
+/* Add media queries for responsiveness - when the screen is 500px wide or less, stack the links on top of each other */
+@media screen and (max-width: 500px) {
+  .header a {
+    float: none;
+    display: block;
+    text-align: left;
+  }
+  .header-right {
+    float: none;
+  }
+}
+
+.card {
+  width: 190px;
+  height: 254px;
+  border-radius: 20px;
+  background: #edf5d1;
+  position: relative;
+  padding: 1.8rem;
+  border: 2px solid #379683;
+  transition: 0.5s ease-out;
+  overflow: visible;
+  margin-top: 4%;
+  margin-left: 3%;
+  margin-right: 3%;
+}
+
+.card-pos {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.card-details {
+  color: black;
+  height: 100%;
+  gap: 0.5em;
+  display: grid;
+  place-content: center;
+  font-family: "Medium 500", "Poppins", sans-serif;
+}
+
+.card-details::after {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  content: " ";
+}
+
+.card-button {
+  transform: translate(-50%, 125%);
+  width: 60%;
+  border-radius: 1rem;
+  border: none;
+  background-color: #05386b;
+  color: #edf5e1;
+  font-size: 1rem;
+  padding: 0.5rem 1rem;
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  opacity: 0;
+  transition: 0.3s ease-out;
+  cursor: pointer;
+  font-family: "Medium 500", "Poppins", sans-serif;
+  text-align: center;
+}
+
+/* .text-body {
+    color: rgb(134, 134, 134);
+    align-self: last baseline;
+   } */
+
+.text-body {
+  color: rgb(134, 134, 134);
+  align-self: last baseline;
+  font-family: "Light 300", "Poppins", sans-serif;
+}
+
+/*Text*/
+/* .text-title {
+    font-size: 1.5em;
+    font-weight: bold;
+   } */
+
+/*Text*/
+.text-title {
+  font-family: "Medium 500", "Poppins", sans-serif;
+  font-size: 1.5em;
+  font-weight: bold;
+}
+
+/*Hover*/
+.card:hover {
+  border-color: #05386b;
+  box-shadow: 0 4px 18px 0 rgba(0, 0, 0, 0.25);
+}
+
+.card:hover .card-button {
+  transform: translate(-50%, 50%);
+  opacity: 1;
+}
+
+.font-link {
+  font-family: "Poppins", sans-serif;
+}
+
+.font-linkl {
+  font-family: "Light 300", "Poppins", sans-serif;
+}
+
+.font-linkb {
+  font-family: "Medium 500", "Poppins", sans-serif;
+}
+
+.font-linkel {
+  font-family: "Thin 100", "Poppins", sans-serif;
+}
+
+/* $body-bg: #5cdb95;
+
+   $bg-log:#ffffff;
+
+   $body-second:#05386b;
+    */
+/* or, use an existing variable */
+/* $theme-colors: (
+     primary: #edf5d1,
+     secondary:#05386b
+     
+   ); */

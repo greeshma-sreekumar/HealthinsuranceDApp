@@ -1,0 +1,879 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="company.css" />
+
+    <title>Insuro DApp</title>
+  </head>
+  <body>
+    <div id="navbar">
+      <a href="/">Home</a>
+      <a href="/insuCompany">Company</a>
+      <a href="/customer">Customer</a>
+      <a href="/hospital">Hospital</a>
+    </div>
+    <!-- <iframe
+      id="customerpage"
+      src="/customer"
+      frameborder="0"
+      style="display: none"
+    ></iframe> -->
+    <div id="container">
+      <h3>Create Policy</h3>
+      <form id="newPolicyForm">
+        <!-- <label for="walletaddress">Company Wallet Address</label>
+        <input type="text" id="walletaddress" /> -->
+
+        <label for="policyName">Policy Name:</label>
+        <input type="text" id="policyName" name="policyName" /><br /><br />
+
+        <label for="policyId">Policy ID:</label>
+        <input type="number" id="policyId" name="policyId" /><br /><br />
+
+        <label for="ICregnum">Insurance Company Registration Number:</label>
+        <input type="number" id="ICregnum" name="ICregnum" /><br /><br />
+
+        <label for="premium">Premium to be Paid:</label>
+        <input type="number" id="premium" name="premium" /><br /><br />
+
+        <label for="sumInsured">Sum Insured by Policy:</label>
+        <input type="number" id="sumInsured" name="sumInsured" /><br /><br />
+
+        <button type="submit">Add Policy</button>
+      </form>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.5.2/dist/web3.min.js"></script>
+    <script>
+      const abi = [
+        {
+          constant: true,
+          inputs: [
+            {
+              name: "_customerWalletAddress",
+              type: "address",
+            },
+            {
+              name: "_CustomerPassword",
+              type: "string",
+            },
+          ],
+          name: "CustomerLogin",
+          outputs: [
+            {
+              name: "",
+              type: "int256",
+            },
+          ],
+          payable: false,
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          constant: false,
+          inputs: [
+            {
+              name: "_patientAddress",
+              type: "address",
+            },
+            {
+              name: "_amount",
+              type: "int256",
+            },
+            {
+              name: "_description",
+              type: "string",
+            },
+          ],
+          name: "generatebBillforpatient",
+          outputs: [
+            {
+              name: "",
+              type: "int256",
+            },
+          ],
+          payable: false,
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          constant: false,
+          inputs: [
+            {
+              name: "_customerWalletAddress",
+              type: "address",
+            },
+            {
+              name: "_policyId",
+              type: "int256",
+            },
+            {
+              name: "_billId",
+              type: "int256",
+            },
+          ],
+          name: "applyforclaim",
+          outputs: [],
+          payable: false,
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          constant: true,
+          inputs: [
+            {
+              name: "",
+              type: "int256",
+            },
+          ],
+          name: "claims",
+          outputs: [
+            {
+              name: "exists",
+              type: "bool",
+            },
+            {
+              name: "claimId",
+              type: "int256",
+            },
+            {
+              name: "billId",
+              type: "int256",
+            },
+            {
+              name: "amount",
+              type: "int256",
+            },
+            {
+              name: "description",
+              type: "string",
+            },
+            {
+              name: "claimApproved",
+              type: "bool",
+            },
+            {
+              name: "claimSettled",
+              type: "bool",
+            },
+            {
+              name: "settlementamount",
+              type: "uint256",
+            },
+            {
+              name: "customerWalletAddress",
+              type: "address",
+            },
+            {
+              name: "insuranceCompanyAddress",
+              type: "address",
+            },
+          ],
+          payable: false,
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          constant: false,
+          inputs: [
+            {
+              name: "_insuranceCompanyWalletAddress",
+              type: "address",
+            },
+            {
+              name: "_premiumtobepaid",
+              type: "uint256",
+            },
+          ],
+          name: "paypremium",
+          outputs: [
+            {
+              name: "",
+              type: "bool",
+            },
+          ],
+          payable: true,
+          stateMutability: "payable",
+          type: "function",
+        },
+        {
+          constant: true,
+          inputs: [
+            {
+              name: "",
+              type: "uint256",
+            },
+          ],
+          name: "registeredhospitals",
+          outputs: [
+            {
+              name: "",
+              type: "address",
+            },
+          ],
+          payable: false,
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          constant: false,
+          inputs: [
+            {
+              name: "_customerName",
+              type: "string",
+            },
+            {
+              name: "_customerWalletAddress",
+              type: "address",
+            },
+            {
+              name: "_CustomerPassword",
+              type: "string",
+            },
+          ],
+          name: "registerasacustomer",
+          outputs: [],
+          payable: false,
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          constant: false,
+          inputs: [
+            {
+              name: "_claimId",
+              type: "int256",
+            },
+          ],
+          name: "DisburseClaimamount",
+          outputs: [],
+          payable: true,
+          stateMutability: "payable",
+          type: "function",
+        },
+        {
+          constant: true,
+          inputs: [
+            {
+              name: "",
+              type: "address",
+            },
+          ],
+          name: "hospitalmapping",
+          outputs: [
+            {
+              name: "isalreadyexisting",
+              type: "bool",
+            },
+            {
+              name: "hospitalName",
+              type: "string",
+            },
+            {
+              name: "hospitalregnum",
+              type: "int256",
+            },
+            {
+              name: "hospitalWalletAddress",
+              type: "address",
+            },
+            {
+              name: "numverifications",
+              type: "int256",
+            },
+            {
+              name: "hospitalPassword",
+              type: "string",
+            },
+          ],
+          payable: false,
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          constant: true,
+          inputs: [
+            {
+              name: "",
+              type: "uint256",
+            },
+          ],
+          name: "AllPolicyID",
+          outputs: [
+            {
+              name: "",
+              type: "int256",
+            },
+          ],
+          payable: false,
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          constant: true,
+          inputs: [
+            {
+              name: "",
+              type: "address",
+            },
+            {
+              name: "",
+              type: "uint256",
+            },
+          ],
+          name: "claimsLinkedtoInsuranceCompany",
+          outputs: [
+            {
+              name: "",
+              type: "int256",
+            },
+          ],
+          payable: false,
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          constant: false,
+          inputs: [
+            {
+              name: "_nameofInsuranceCompany",
+              type: "string",
+            },
+            {
+              name: "_insuranceCompanyWalletAddress",
+              type: "address",
+            },
+            {
+              name: "_insuranceCompanyregnum",
+              type: "uint256",
+            },
+            {
+              name: "_insuranceCompanyPassword",
+              type: "string",
+            },
+          ],
+          name: "addInsuranceCompany",
+          outputs: [
+            {
+              name: "",
+              type: "address",
+            },
+          ],
+          payable: false,
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          constant: false,
+          inputs: [
+            {
+              name: "policyId",
+              type: "int256",
+            },
+          ],
+          name: "applyforinsurance",
+          outputs: [],
+          payable: true,
+          stateMutability: "payable",
+          type: "function",
+        },
+        {
+          constant: true,
+          inputs: [
+            {
+              name: "",
+              type: "uint256",
+            },
+          ],
+          name: "inusranceCompaniesmappingwithregnum",
+          outputs: [
+            {
+              name: "isalreadyexisting",
+              type: "bool",
+            },
+            {
+              name: "insuranceCompanyName",
+              type: "string",
+            },
+            {
+              name: "insuranceCompanyWalletAddress",
+              type: "address",
+            },
+            {
+              name: "insuranceCompanyAccountBalance",
+              type: "int256",
+            },
+            {
+              name: "insuranceCompanyregnum",
+              type: "uint256",
+            },
+            {
+              name: "insuranceCompanyPassword",
+              type: "string",
+            },
+          ],
+          payable: false,
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          constant: true,
+          inputs: [
+            {
+              name: "",
+              type: "uint256",
+            },
+          ],
+          name: "insuranceCompanies",
+          outputs: [
+            {
+              name: "",
+              type: "address",
+            },
+          ],
+          payable: false,
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          constant: true,
+          inputs: [
+            {
+              name: "",
+              type: "uint256",
+            },
+          ],
+          name: "hospitals",
+          outputs: [
+            {
+              name: "",
+              type: "address",
+            },
+          ],
+          payable: false,
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          constant: true,
+          inputs: [
+            {
+              name: "UserAddress",
+              type: "address",
+            },
+          ],
+          name: "AddressExist",
+          outputs: [
+            {
+              name: "",
+              type: "bool",
+            },
+          ],
+          payable: false,
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          constant: true,
+          inputs: [
+            {
+              name: "",
+              type: "address",
+            },
+          ],
+          name: "insuranceCompaniesmapping",
+          outputs: [
+            {
+              name: "isalreadyexisting",
+              type: "bool",
+            },
+            {
+              name: "insuranceCompanyName",
+              type: "string",
+            },
+            {
+              name: "insuranceCompanyWalletAddress",
+              type: "address",
+            },
+            {
+              name: "insuranceCompanyAccountBalance",
+              type: "int256",
+            },
+            {
+              name: "insuranceCompanyregnum",
+              type: "uint256",
+            },
+            {
+              name: "insuranceCompanyPassword",
+              type: "string",
+            },
+          ],
+          payable: false,
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          constant: true,
+          inputs: [
+            {
+              name: "",
+              type: "int256",
+            },
+          ],
+          name: "policiesAvailable",
+          outputs: [
+            {
+              name: "alreadyexits",
+              type: "bool",
+            },
+            {
+              name: "policyName",
+              type: "string",
+            },
+            {
+              name: "policyId",
+              type: "int256",
+            },
+            {
+              name: "insuraceCompanyregnum",
+              type: "uint256",
+            },
+            {
+              name: "insuranceCompanyName",
+              type: "string",
+            },
+            {
+              name: "insuranceCompanyAddress",
+              type: "address",
+            },
+            {
+              name: "premiumtobepaid",
+              type: "uint256",
+            },
+            {
+              name: "suminsuredbypolicy",
+              type: "uint256",
+            },
+          ],
+          payable: false,
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          constant: true,
+          inputs: [
+            {
+              name: "",
+              type: "address",
+            },
+          ],
+          name: "customerData",
+          outputs: [
+            {
+              name: "alreadyexits",
+              type: "bool",
+            },
+            {
+              name: "customerName",
+              type: "string",
+            },
+            {
+              name: "customerWalletAddress",
+              type: "address",
+            },
+            {
+              name: "CustomerPassword",
+              type: "string",
+            },
+            {
+              name: "policyId",
+              type: "int256",
+            },
+            {
+              name: "premiumdue",
+              type: "uint256",
+            },
+            {
+              name: "paidpremium",
+              type: "bool",
+            },
+            {
+              name: "suminsuredbypolicy",
+              type: "uint256",
+            },
+            {
+              name: "appliedForClaim",
+              type: "bool",
+            },
+            {
+              name: "billId",
+              type: "int256",
+            },
+            {
+              name: "claimSettled",
+              type: "bool",
+            },
+            {
+              name: "claimId",
+              type: "int256",
+            },
+            {
+              name: "verifiedUser",
+              type: "bool",
+            },
+          ],
+          payable: false,
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          constant: false,
+          inputs: [
+            {
+              name: "_PatientAddress",
+              type: "address",
+            },
+          ],
+          name: "VerifyPatient",
+          outputs: [],
+          payable: false,
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          constant: false,
+          inputs: [
+            {
+              name: "_claimId",
+              type: "int256",
+            },
+            {
+              name: "_settlementamount",
+              type: "uint256",
+            },
+          ],
+          name: "verifyCLaim",
+          outputs: [],
+          payable: false,
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          constant: true,
+          inputs: [
+            {
+              name: "",
+              type: "uint256",
+            },
+          ],
+          name: "AllAddress",
+          outputs: [
+            {
+              name: "",
+              type: "address",
+            },
+          ],
+          payable: false,
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          constant: true,
+          inputs: [
+            {
+              name: "",
+              type: "int256",
+            },
+          ],
+          name: "billmapping",
+          outputs: [
+            {
+              name: "billId",
+              type: "int256",
+            },
+            {
+              name: "amount",
+              type: "int256",
+            },
+            {
+              name: "patientAddress",
+              type: "address",
+            },
+            {
+              name: "_hospitalwalletaddress",
+              type: "address",
+            },
+            {
+              name: "description",
+              type: "string",
+            },
+          ],
+          payable: false,
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          constant: false,
+          inputs: [
+            {
+              name: "_hospitalName",
+              type: "string",
+            },
+            {
+              name: "_hospitalregnum",
+              type: "int256",
+            },
+            {
+              name: "_hospitalWalletAddress",
+              type: "address",
+            },
+            {
+              name: "_hospitalPassword",
+              type: "string",
+            },
+          ],
+          name: "registerhospital",
+          outputs: [
+            {
+              name: "",
+              type: "address",
+            },
+          ],
+          payable: false,
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          constant: false,
+          inputs: [
+            {
+              name: "_policyName",
+              type: "string",
+            },
+            {
+              name: "_policyId",
+              type: "int256",
+            },
+            {
+              name: "_ICregnum",
+              type: "uint256",
+            },
+            {
+              name: "_insuranceCompanyWalletAddress",
+              type: "address",
+            },
+            {
+              name: "_premiumtobepaid",
+              type: "uint256",
+            },
+            {
+              name: "_suminsuredbypolicy",
+              type: "uint256",
+            },
+          ],
+          name: "addnewpolicy",
+          outputs: [],
+          payable: false,
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          constant: true,
+          inputs: [
+            {
+              name: "",
+              type: "address",
+            },
+          ],
+          name: "verifiedhospitals",
+          outputs: [
+            {
+              name: "",
+              type: "bool",
+            },
+          ],
+          payable: false,
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          constant: true,
+          inputs: [
+            {
+              name: "_hospitalWalletAddress",
+              type: "address",
+            },
+            {
+              name: "_hospitalPassword",
+              type: "string",
+            },
+          ],
+          name: "HospitalLogin",
+          outputs: [
+            {
+              name: "",
+              type: "int256",
+            },
+          ],
+          payable: false,
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          constant: true,
+          inputs: [
+            {
+              name: "",
+              type: "uint256",
+            },
+          ],
+          name: "AllCustomers",
+          outputs: [
+            {
+              name: "",
+              type: "address",
+            },
+          ],
+          payable: false,
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          constant: true,
+          inputs: [
+            {
+              name: "_insuranceCompanyWalletAddress",
+              type: "address",
+            },
+            {
+              name: "_insuranceCompanyPassword",
+              type: "string",
+            },
+          ],
+          name: "InsuranceCompanyLogin",
+          outputs: [
+            {
+              name: "",
+              type: "int256",
+            },
+          ],
+          payable: false,
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          payable: false,
+          stateMutability: "nonpayable",
+          type: "constructor",
+        },
+      ];
+      //abi
+      // const web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+    </script>
+    <script src="script-company.js"></script>
+  </body>
+</html>

@@ -1,0 +1,109 @@
+body {
+  margin: 0;
+}
+#navbar {
+  background-color: #f1f1f1;
+  overflow: hidden;
+}
+
+#navbar a {
+  float: left;
+  display: block;
+  color: #333;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+  font-family: "Arial Rounded MT Bold", sans-serif; /* Use a round font */
+}
+
+#navbar a:hover {
+  background-color: rgb(
+    176,
+    187,
+    244
+  ); /* Set the hover background color to beige */
+  color: #000;
+}
+/* aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa */
+#container-SignupAndLogin {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f2f2f2;
+  font-family: "Arial Rounded MT Bold", sans-serif; /* Use a round font */
+}
+
+.signup-login {
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 10px;
+  margin: 10px;
+  width: 300px;
+  min-height: 200px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease-in-out;
+  overflow: hidden;
+}
+
+.signup-login:hover {
+  transform: translateY(-5px);
+}
+
+h2 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  font-size: 20px;
+  font-weight: bold;
+  text-align: center;
+  color: #333333;
+  text-transform: uppercase;
+}
+
+.content {
+  padding: 10px;
+}
+
+input[type="text"],
+input[type="number"],
+input[type="password"] {
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #cccccc;
+  margin-bottom: 10px;
+  width: 100%;
+  font-family: "Arial Rounded MT Bold", sans-serif;
+  color: #555555;
+}
+
+button {
+  padding: 10px 20px;
+  border-radius: 5px;
+  border: none;
+  background-color: #3498db;
+  color: #ffffff;
+  cursor: pointer;
+  width: 100%;
+  transition: background-color 0.3s ease-in-out;
+}
+
+button:hover {
+  background-color: #297fb8;
+}
+
+#alreadyRegistered {
+  margin-top: 10px;
+  text-align: center;
+  color: #47464b;
+  font-size: 14px;
+}
+
+/* Additional Styling */
+#company,
+#customer,
+#hospital {
+  background-color: #a3b3e4;
+}
+#customer {
+  height: 430px;
+}
