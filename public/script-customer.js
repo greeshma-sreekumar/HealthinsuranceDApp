@@ -1,8 +1,3 @@
-// const contractAddress = "0x9625dd057CAdFdB78E13731384813AC0Fe6E9A98";
-
-// const { EthereumProvider } = require("ganache");
-
-// const abi = JSON.parse(sessionStorage.getItem("abi"));
 const contractAddress = sessionStorage.getItem("contractAddress");
 
 const web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
@@ -17,11 +12,12 @@ const custPrivateKey =
 const insPrivateKey =
   "0x381af7078d460909e62d44677cf0f905b438d65a4450fd21b6efb477fe58a3d1";
 
+/////////////////////////////////////////////////////////////////////////////////
+//Adding the policy created by the company to the customer Apply for insurance page
+/////////////////////////////////////////////////////////////////////////////////
 const policyIdInput = document.getElementById("policyId-apply");
 const policyIdArray = JSON.parse(sessionStorage.getItem("policyIdArray"));
-// const premiumcount = [];
-
-// const premiumcount_policyindex = [];
+// Declaring function for adding new policy
 async function addNewPolicy() {
   const cardContainer = document.getElementById("card-container");
 
@@ -46,9 +42,14 @@ async function addNewPolicy() {
     cardContainer.appendChild(card);
   }
 }
-
+//Eventlistener that calls the addnewpolicy function.
 document.addEventListener("DOMContentLoaded", addNewPolicy);
-
+/////////////////////////////////////////////////////////////////////////////////
+//Verifying the added policy when applying for them
+//This works when we click on the "Apply" button in dynamicaly created card of policy details
+//Works after the applying for insurance to smartcontract
+//Have modifier in solidity saying only company can verify the patients
+/////////////////////////////////////////////////////////////////////////////////
 async function verifyPatient(patientAddress) {
   try {
     const result = await contract.methods
@@ -63,16 +64,22 @@ async function verifyPatient(patientAddress) {
     alert("Error verifying patient");
   }
 }
-
+/////////////////////////////////////////////////////////////////////////////////
+//Applying for the added policy
+//Calls applyforinsurance method in solidity code
+//premiumcount_policyindex array is called for checking policy is applied only once by one customer
+/////////////////////////////////////////////////////////////////////////////////
 async function applyForInsurance() {
-  // const policyId = parseInt(policyIdInput.value);
+  // calling the nearest card value;
   const cardContainer = event.target.closest(".card");
   const policyIdElement = cardContainer.querySelector(".policyid");
   const policyId1 = policyIdElement.textContent.split(": ")[1];
+  //array declaration
   const policyId = parseInt(policyId1);
   const premiumcount = JSON.parse(sessionStorage.getItem("premiumcount")) || [];
   const premiumcount_policyindex =
     JSON.parse(sessionStorage.getItem("premiumcount_policyindex")) || [];
+  //if condition for restricting duplicate apply
   if (!premiumcount_policyindex.includes(policyId)) {
     premiumcount.push(0);
     sessionStorage.setItem("premiumcount", JSON.stringify(premiumcount));
@@ -89,11 +96,12 @@ async function applyForInsurance() {
 
       const result = await contract.methods
         .applyforinsurance(policyId)
-        .send({ from: accounts[0], gas: "2000000" });
+        .send({ from: accounts[0], gas: "2000000" }); //Applyind for insurance using policy details and customers address
 
       console.log("Insurance application successful.");
       alert("Insurance application successful.");
       console.log(result);
+      //Varification of the patient is done
       verifyPatient(accounts[0]);
     } catch (error) {
       console.error("Error applying for insurance:", error);
@@ -103,18 +111,19 @@ async function applyForInsurance() {
     alert("already applied!");
   }
 }
-// const apply_button = document.getElementsByClassName("apply-button");
-// apply_button.addEventListener("click", applyForInsurance);
-
+/////////////////////////////////////////////////////////////////////////////////
+//Beggining of preparation of functions for premium paying function
+/////////////////////////////////////////////////////////////////////////////////
+//input and buttons
 const policyIdInput1 = document.getElementById("policyId-pay");
 const senderBalanceDisplay = document.getElementById("senderBalance");
 const receiverBalanceDisplay = document.getElementById("receiverBalance");
-
+//function for getting balance of sender and receiver
 async function getAccountBalance(address) {
   const balance = await web3.eth.getBalance(address);
   return web3.utils.fromWei(balance, "ether");
 }
-
+//function for geting policy datails using the input policy ID
 async function getPolicyDetails(policyId) {
   const result = await contract.methods.policiesAvailable(policyId).call();
   return {
@@ -128,7 +137,11 @@ async function getPolicyDetails(policyId) {
     sumInsuredByPolicy: result.suminsuredbypolicy,
   };
 }
-
+/////////////////////////////////////////////////////////////////////////////////
+//Event listener that calls the function to print the details of the policy that we are
+//applying for. A div is dynamicaly created that restricts the payment of policy value upto
+//the sum insured by disabling the payment buton after the limit
+/////////////////////////////////////////////////////////////////////////////////
 document
   .getElementById("submit-premiumpay")
   .addEventListener("click", async function () {
@@ -147,20 +160,17 @@ document
     // const totalpremiumpaid = premiumtobepaid * premiumcount[indexs];
     // const premiumpaydetails = document.getElementById("premiumpay-details");
     const result = await contract.methods.policiesAvailable(policyId).call();
-  const companyName = result.insuranceCompanyName;
-  const policyName = result.policyName;
-  const premiumtobepaid = result.premiumtobepaid;
-  const suminsuredbypolicy = result.suminsuredbypolicy;
- 
-  const premiumcount = JSON.parse(sessionStorage.getItem("premiumcount"));
-  const premiumcount_policyindex = JSON.parse(
-    sessionStorage.getItem("premiumcount_policyindex")
-  );
-  const indexs = premiumcount_policyindex.indexOf(policyId);
- 
-  const totalpremiumpaid = premiumtobepaid * premiumcount[indexs];
-    if (totalpremiumpaid>=suminsuredbypolicy) {
-      
+    const companyName = result.insuranceCompanyName;
+    const policyName = result.policyName;
+    const premiumtobepaid = result.premiumtobepaid;
+    const suminsuredbypolicy = result.suminsuredbypolicy;
+    const premiumcount = JSON.parse(sessionStorage.getItem("premiumcount"));
+    const premiumcount_policyindex = JSON.parse(
+      sessionStorage.getItem("premiumcount_policyindex")
+    );
+    const indexs = premiumcount_policyindex.indexOf(policyId);
+    const totalpremiumpaid = premiumtobepaid * premiumcount[indexs]; //total valye paid up until now
+    if (totalpremiumpaid >= suminsuredbypolicy) {
       premiumpaydetails.innerHTML = `
     <p>Policy name: ${policyName}</p>
     <p>Company name: ${companyName}</p>
@@ -177,11 +187,17 @@ document
     <p>Sum insured by policy: ${suminsuredbypolicy}</p>
     <p>Total premium paid: ${totalpremiumpaid}</p>
   `;
-    document.getElementById("premiumbutton").style.visibility = "visible";
-      
+      document.getElementById("premiumbutton").style.visibility = "visible";
     }
   });
-
+/////////////////////////////////////////////////////////////////////////////////
+//Function for paying premium it works as long as the sum insured is not reached.
+//After claiming you can apply for the policy again and pay premium from start.
+//Ether transaction happens
+//sender is the customer wallet address
+//receiver is the ins_company wallet address
+//the transaction is signed using the senders private key
+/////////////////////////////////////////////////////////////////////////////////
 async function payPremium(policyId) {
   // const policyId = parseInt(policyIdInput1.value);
   const premiumcount = JSON.parse(sessionStorage.getItem("premiumcount"));
@@ -189,80 +205,71 @@ async function payPremium(policyId) {
     sessionStorage.getItem("premiumcount_policyindex")
   );
   const indexs = premiumcount_policyindex.indexOf(policyId);
-  const result = await contract.methods.policiesAvailable(policyId).call();
-  const suminsuredbypolicy = result.suminsuredbypolicy;
-  const premiumtobepaid = result.premiumtobepaid;
-    premiumcount[indexs] += 1;
-    sessionStorage.setItem("premiumcount", JSON.stringify(premiumcount));
-    console.log("after");
-    console.log(`premiumcount:${premiumcount[indexs]}`);
-
-    try {
-      const accounts = await web3.eth.getAccounts();
-      const senderAddress = accounts[0];
-      const senderPrivateKey = custPrivateKey;
-      const senderBalanceBefore = await getAccountBalance(senderAddress);
-      console.log("Sender balance", senderBalanceBefore);
-      const policyDetails = await getPolicyDetails(policyId);
-      console.log(policyDetails);
-      const receiverAddress = policyDetails.insuranceCompanyAddress;
-
-      // const receiverAddress = insaccounts[0];
-      console.log("receiver address", receiverAddress);
-      const receiverBalanceBefore = await getAccountBalance(receiverAddress);
-      console.log("receiver balance", receiverBalanceBefore);
-      console.log(policyDetails.premiumToBePaid);
-      const signedTx = await web3.eth.accounts.signTransaction(
-        {
-          from: senderAddress,
-          to: receiverAddress,
-          value: policyDetails.premiumToBePaid,
-          gas: 500000,
-        },
-        senderPrivateKey
-      );
-
-      const result = await web3.eth.sendSignedTransaction(
-        signedTx.rawTransaction
-      );
-      const result2 = await contract.methods.paypremium(
-        receiverAddress,
-        policyDetails.premiumToBePaid
-      );
-      console.log(result2);
-      console.log("Transaction hash", result.transactionHash);
-      console.log("Premium payment successful.");
-      alert("Premium payment successful.");
-      const senderBalanceAfter = await getAccountBalance(senderAddress);
-      const receiverBalanceAfter = await getAccountBalance(receiverAddress);
-
-      console.log(result);
-
-      // const premium_paid = sessionStorage.getItem("premium_paid") || [];
-      // sessionStorage.setItem(
-      //   "contractAddress",
-      //   "0x851d3b2e2c91f4cABcaA15075B6db04F58Ce0505"
-      // );
-      senderBalanceDisplay.textContent = `Sender Balance: ${senderBalanceBefore} ETH (Before) -> ${senderBalanceAfter} ETH (After)`;
-      receiverBalanceDisplay.textContent = `Receiver Balance: ${receiverBalanceBefore} ETH (Before) -> ${receiverBalanceAfter} ETH (After)`;
-    } catch (error) {
-      console.error("Error paying premium:", error);
-      alert("Error paying premium:");
-    }
+  premiumcount[indexs] += 1;
+  sessionStorage.setItem("premiumcount", JSON.stringify(premiumcount));
+  try {
+    //Sender address and receiver address are specified
+    const accounts = await web3.eth.getAccounts();
+    const senderAddress = accounts[0];
+    const senderPrivateKey = custPrivateKey;
+    const senderBalanceBefore = await getAccountBalance(senderAddress);
+    console.log("Sender balance before:", senderBalanceBefore);
+    const policyDetails = await getPolicyDetails(policyId);
+    const receiverAddress = policyDetails.insuranceCompanyAddress;
+    console.log("receiver address", receiverAddress);
+    const receiverBalanceBefore = await getAccountBalance(receiverAddress);
+    console.log("receiver balance before:", receiverBalanceBefore);
+    console.log(policyDetails.premiumToBePaid);
+    //The transaction is signed
+    const signedTx = await web3.eth.accounts.signTransaction(
+      {
+        from: senderAddress,
+        to: receiverAddress,
+        value: policyDetails.premiumToBePaid,
+        gas: 500000,
+      },
+      senderPrivateKey
+    );
+    //Obtaining the transaction hash
+    const result = await web3.eth.sendSignedTransaction(
+      signedTx.rawTransaction
+    );
+    //premium payoing function for confiriming the payment in solidity code is called
+    const result2 = await contract.methods.paypremium(
+      receiverAddress,
+      policyDetails.premiumToBePaid
+    );
+    console.log(result2);
+    console.log("Transaction hash", result.transactionHash);
+    console.log("Premium payment successful.");
+    alert("Premium payment successful.");
+    const senderBalanceAfter = await getAccountBalance(senderAddress);
+    const receiverBalanceAfter = await getAccountBalance(receiverAddress);
+    console.log(result);
+    //Sender and receiver balance are printed
+    senderBalanceDisplay.textContent = `Sender Balance: ${senderBalanceBefore} ETH (Before) -> ${senderBalanceAfter} ETH (After)`;
+    receiverBalanceDisplay.textContent = `Receiver Balance: ${receiverBalanceBefore} ETH (Before) -> ${receiverBalanceAfter} ETH (After)`;
+  } catch (error) {
+    console.error("Error paying premium:", error);
+    alert("Error paying premium:");
+  }
 }
-
+/////////////////////////////////////////////////////////////////////////////////
+//Event listener for premium paying function
+/////////////////////////////////////////////////////////////////////////////////
 document
   .getElementById("premiumbutton")
   .addEventListener("click", async function () {
     const policyIdInput = document.getElementById("policyIdInput");
-
     const policyId = parseInt(policyIdInput.value);
-    await window.ethereum.enable();
-    await ethereum.send("eth_requestAccounts");
     await payPremium(policyId);
   });
 
-// Event listener for the "Claim" button
+/////////////////////////////////////////////////////////////////////////////////
+//Event listener that calls the function to displaying the claim details
+//If total payment of premium is greater than bill amount the bill amount is paid
+//else only paid premium amount is reimbursed
+/////////////////////////////////////////////////////////////////////////////////
 document.getElementById("submit").addEventListener("click", async function () {
   const policyIdInput = document.getElementById("policyIdInput");
   const billIdInput = document.getElementById("billIdInput");
@@ -274,7 +281,6 @@ document.getElementById("submit").addEventListener("click", async function () {
   const companyName = result.insuranceCompanyName;
   const policyName = result.policyName;
   const premiumtobepaid = result.premiumtobepaid;
-  // const suminsuredbypolicy = result.suminsuredbypolicy;
   const billdetails = await contract.methods.billmapping(billId).call();
   const billamount = billdetails.amount;
   const premiumcount = JSON.parse(sessionStorage.getItem("premiumcount"));
@@ -282,10 +288,6 @@ document.getElementById("submit").addEventListener("click", async function () {
     sessionStorage.getItem("premiumcount_policyindex")
   );
   const indexs = premiumcount_policyindex.indexOf(policyId);
-  console.log(premiumcount_policyindex);
-  console.log(premiumcount);
-  console.log(`Premium amount: ${premiumtobepaid}`);
-  console.log(`premium count ${premiumcount[indexs]}`);
   const totalpremiumpaid = premiumtobepaid * premiumcount[indexs];
   if (totalpremiumpaid >= billamount) {
     const claimdetails = document.getElementById("claim-details");
@@ -310,6 +312,11 @@ document.getElementById("submit").addEventListener("click", async function () {
   }
   document.getElementById("claimButton").style.visibility = "visible";
 });
+/////////////////////////////////////////////////////////////////////////////////
+//Event listener that calls the function that disburst the claim
+//The soldity code have requirmrnts like only valied policy id can claim
+//only once a bill can be claimed
+/////////////////////////////////////////////////////////////////////////////////
 document
   .getElementById("claimButton")
   .addEventListener("click", async function () {
@@ -321,8 +328,9 @@ document
 
     await applyForClaim(policyId, billId);
   });
-
+/////////////////////////////////////////////////////////////////////////////////
 // Function to apply for claim
+/////////////////////////////////////////////////////////////////////////////////
 async function applyForClaim(policyId, billId) {
   try {
     const accounts = await web3.eth.getAccounts();
@@ -336,25 +344,24 @@ async function applyForClaim(policyId, billId) {
     const policydetails = await contract.methods
       .policiesAvailable(policyId)
       .call();
-
     const premiumamount = policydetails.premiumtobepaid;
     const premiumpaidupuntilnow = premiumamount * premiumcount[indexs];
     let amountpaid = 0;
     if (premiumpaidupuntilnow >= billamount) {
       amountpaid = billamount;
     } else {
-      // alert("premium amount not sufficient only Total premium will be paid");
       amountpaid = premiumpaidupuntilnow;
     }
     const result = await contract.methods
       .applyforclaim(accounts[0], policyId, billId)
       .send({ from: accounts[0], gas: "500000" });
-    // console.log(result);
     console.log(
       "Claim applied successfully. Transaction:",
       result.transactionHash
     );
-    const customerdetails = await contract.methods.customerData(accounts[0]).call();
+    const customerdetails = await contract.methods
+      .customerData(accounts[0])
+      .call();
     const claimverification = await contract.methods
       .verifyCLaim(customerdetails.claimId, amountpaid)
       .send({ from: insaccounts[0], gas: "500000" });
@@ -363,12 +370,12 @@ async function applyForClaim(policyId, billId) {
       "Claim verified successfully. Transaction:",
       claimverification.transactionHash
     );
-    // You can perform additional actions if needed
-
+    //sender and receiver address are assigned
     const recAddress = accounts[0];
     const sendAddress = insaccounts[0];
     const sendPrivateKey = insPrivateKey;
     const recAddressBalanceBefore = await getAccountBalance(recAddress);
+    //transaction is signed using ins_company's private key
     const signedTx = await web3.eth.accounts.signTransaction(
       {
         from: sendAddress,
@@ -378,6 +385,7 @@ async function applyForClaim(policyId, billId) {
       },
       sendPrivateKey
     );
+    //Signed transaction is send
     const distresult = await web3.eth.sendSignedTransaction(
       signedTx.rawTransaction
     );
@@ -385,7 +393,6 @@ async function applyForClaim(policyId, billId) {
     console.log("Distributted");
     console.log(distresult);
     const recerBalance = document.getElementById("recerBalance");
-
     recerBalance.textContent = `Receiver Balance: ${recAddressBalanceBefore} ETH (Before) -> ${recAddressBalanceAfter} ETH (After)`;
   } catch (error) {
     console.error("Error applying for claim:", error);
