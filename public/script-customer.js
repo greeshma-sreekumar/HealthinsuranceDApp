@@ -132,29 +132,35 @@ async function getPolicyDetails(policyId) {
 document
   .getElementById("submit-premiumpay")
   .addEventListener("click", async function () {
-    const policyIdInput = document.getElementById("policyIdInput");
-    const policyId = parseInt(policyIdInput.value);
+    // const policyIdInput = document.getElementById("policyIdInput");
+    // const policyId = parseInt(policyIdInput.value);
+    // const result = await contract.methods.policiesAvailable(policyId).call();
+    // const companyName = result.insuranceCompanyName;
+    // const policyName = result.policyName;
+    // const premiumtobepaid = result.premiumtobepaid;
+    // const suminsuredbypolicy = result.suminsuredbypolicy;
+    // const premiumcount = JSON.parse(sessionStorage.getItem("premiumcount"));
+    // const premiumcount_policyindex = JSON.parse(
+    //   sessionStorage.getItem("premiumcount_policyindex")
+    // );
+    // const indexs = premiumcount_policyindex.indexOf(policyId);
+    // const totalpremiumpaid = premiumtobepaid * premiumcount[indexs];
+    // const premiumpaydetails = document.getElementById("premiumpay-details");
     const result = await contract.methods.policiesAvailable(policyId).call();
-    const companyName = result.insuranceCompanyName;
-    const policyName = result.policyName;
-    const premiumtobepaid = result.premiumtobepaid;
-    const suminsuredbypolicy = result.suminsuredbypolicy;
-    const premiumcount = JSON.parse(sessionStorage.getItem("premiumcount"));
-    const premiumcount_policyindex = JSON.parse(
-      sessionStorage.getItem("premiumcount_policyindex")
-    );
-    const indexs = premiumcount_policyindex.indexOf(policyId);
-    const totalpremiumpaid = premiumtobepaid * premiumcount[indexs];
-    const premiumpaydetails = document.getElementById("premiumpay-details");
-    if (totalpremiumpaid + premiumtobepaid <= suminsuredbypolicy) {
-      premiumpaydetails.innerHTML = `
-    <p>Policy name: ${policyName}</p>
-    <p>Company name: ${companyName}</p>
-    <p>Monthly premium: ${premiumtobepaid}</p>
-    <p>Sum insured by policy: ${suminsuredbypolicy}</p>
-    <p>Total premium paid: ${totalpremiumpaid}</p>
-  `;
-    } else {
+  const companyName = result.insuranceCompanyName;
+  const policyName = result.policyName;
+  const premiumtobepaid = result.premiumtobepaid;
+  const suminsuredbypolicy = result.suminsuredbypolicy;
+ 
+  const premiumcount = JSON.parse(sessionStorage.getItem("premiumcount"));
+  const premiumcount_policyindex = JSON.parse(
+    sessionStorage.getItem("premiumcount_policyindex")
+  );
+  const indexs = premiumcount_policyindex.indexOf(policyId);
+ 
+  const totalpremiumpaid = premiumtobepaid * premiumcount[indexs];
+    if (totalpremiumpaid>=suminsuredbypolicy) {
+      
       premiumpaydetails.innerHTML = `
     <p>Policy name: ${policyName}</p>
     <p>Company name: ${companyName}</p>
@@ -162,8 +168,18 @@ document
     <p>Sum insured by policy: ${suminsuredbypolicy}</p>
     <p>Total premium paid: ${suminsuredbypolicy}</p>
   `;
-    }
+      alert("Sum insured already reached");
+    } else {
+      premiumpaydetails.innerHTML = `
+    <p>Policy name: ${policyName}</p>
+    <p>Company name: ${companyName}</p>
+    <p>Monthly premium: ${premiumtobepaid}</p>
+    <p>Sum insured by policy: ${suminsuredbypolicy}</p>
+    <p>Total premium paid: ${totalpremiumpaid}</p>
+  `;
     document.getElementById("premiumbutton").style.visibility = "visible";
+      
+    }
   });
 
 async function payPremium(policyId) {
@@ -176,11 +192,6 @@ async function payPremium(policyId) {
   const result = await contract.methods.policiesAvailable(policyId).call();
   const suminsuredbypolicy = result.suminsuredbypolicy;
   const premiumtobepaid = result.premiumtobepaid;
-  const totalpremiumpaid = premiumtobepaid * premiumcount[indexs];
-  console.log(`premiumcount:${premiumcount[indexs]}`);
-  console.log(`totalpremiumpaid:${totalpremiumpaid}`);
-  console.log(`premiumtobepaid:${premiumtobepaid}`);
-  if (totalpremiumpaid + premiumtobepaid <= suminsuredbypolicy) {
     premiumcount[indexs] += 1;
     sessionStorage.setItem("premiumcount", JSON.stringify(premiumcount));
     console.log("after");
@@ -238,9 +249,6 @@ async function payPremium(policyId) {
       console.error("Error paying premium:", error);
       alert("Error paying premium:");
     }
-  } else {
-    alert("Sum insured already reached");
-  }
 }
 
 document
@@ -346,8 +354,9 @@ async function applyForClaim(policyId, billId) {
       "Claim applied successfully. Transaction:",
       result.transactionHash
     );
+    const customerdetails = await contract.methods.customerData(accounts[0]).call();
     const claimverification = await contract.methods
-      .verifyCLaim(1, amountpaid)
+      .verifyCLaim(customerdetails.claimId, amountpaid)
       .send({ from: insaccounts[0], gas: "500000" });
 
     console.log(
